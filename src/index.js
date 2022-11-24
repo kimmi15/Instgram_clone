@@ -15,5 +15,5 @@ app.use('/',rout)
 
 
 app.listen(process.env.PORT || 2360 , ()=>{
-    console.log('server is working');
+    console.log('server is working' + process.env.PORT);
 })
