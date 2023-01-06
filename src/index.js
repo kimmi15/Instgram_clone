@@ -1,20 +1,25 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const multer = require('multer');
-const dotenv = require('dotenv');
-const rout = require('./router/rout')
-
-
-dotenv.config();
+const express = require("express");
+const bodyParser = require("body-parser");
+const route = require("./routes/route.js");
+const mongoose = require("mongoose");
 const app = express();
-console.log(app)
+const multer =require("multer");
 
+app.use(bodyParser.json());
 app.use(multer().any());
-mongoose.connect(process.env.DB_URL).then( _ => console.log('DB connect')).catch((err) => console.log(err));
 
-app.use('/',rout)
+mongoose.connect(
+    "mongodb+srv://kimmi_kumari:kimmi@cluster0.mfdc6.mongodb.net/kimmi-INSTGRAM?retryWrites=true&w=majority",
+    {
+      useNewUrlParser: true,
+    }
+  )  
+  .then(() => console.log("MongoDb is connected."))
+  .catch( err => console.log(err));
 
 
-app.listen(process.env.PORT || 2360 , ()=>{
-    console.log('server is working' + process.env.PORT);
-})
+app.use("/", route);
+
+app.listen(process.env.PORT || 3000, function () {
+  console.log("Express app running on port " + (process.env.PORT || 3000));
+});

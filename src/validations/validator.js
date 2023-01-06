@@ -1,3 +1,6 @@
+const validator = require("email-validator");
+
+
 const isValid = function (value) {
     if (typeof value === "undefined" || value === null) return false;
     if (typeof value === "string" && value.trim().length === 0) return false;
@@ -38,10 +41,7 @@ const isValidMobileNum = function (value) {
     return user
 };
 
-const profileImageCheck = function (value) {
-    let user = /\.(gif|jpe?g|tiff?|png|webp|bmp)$/i.test(value)
-    return user
-};
+
 
 const userNameCheck = function (value) {
     let user = /^[a-zA-Z0-9._]+$/ .test(value)
@@ -54,5 +54,5 @@ let isValidDateFormat = function (date) {
     return dateFormatRegex.test(date)
 }
 
-module.exports = {isValid, emptyBody, emailCheck, isValidPassword, idMatch, onlyNumbers, isValidMobileNum, profileImageCheck, userNameCheck, isValidDateFormat}
+module.exports = {isValid, emptyBody, emailCheck, isValidPassword, idMatch, onlyNumbers, isValidMobileNum,  userNameCheck, isValidDateFormat}
 

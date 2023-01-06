@@ -1,13 +1,21 @@
 const aws= require("aws-sdk")
+
+
+// aws.config.update({
+//     accessKeyId: "AKIAY3L35MCRVFM24Q7U",
+//     secretAccessKey: "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",
+//     region: "ap-south-1"
+   
+// })
 aws.config.update({
-    accessKeyId: process.env.ACCESS_KEY_ID,
-    secretAccessKey: process.env.SECRET_ACCESS_KEY,
-    region: process.env.REGION
+    accessKeyId: "AKIAY3L35MCRZNIRGT6N",
+    secretAccessKey: "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",
+    region: "ap-south-1"
 });
 
 let uploadFile= async (file) =>{
    return new Promise( function(resolve, reject) {
-    let s3 = new aws.S3({apiVersion: '2006-03-01'}); 
+    let s3= new aws.S3({apiVersion: '2006-03-01'}); 
 
     var uploadParams= {
         ACL: "public-read",

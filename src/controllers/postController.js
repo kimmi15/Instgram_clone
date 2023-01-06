@@ -1,10 +1,21 @@
-const { emptyBody, idMatch, isValid } = require('../../../SocialMedia-Project-main/src/validations/validator');
-const postModel = require('../model/postModel');
-const profileModel = require('../model/profileMode');
+const postModel = require("../models/postModel.js")
+const profileModel = require("../models/profileModel.js")
+const upload = require('../aws/config.js')
+const {isValid, emptyBody, idMatch, profileImageCheck} = require("../validations/validator.js")
 
-/**   --------------------------------------------createPost------------------------------------------------- */
-const createPost = async (req,res) =>{
-    try {
+
+
+
+
+
+
+
+
+
+//====================================  Creating a post  ===========================================//
+
+const createPost = async function (req, res){
+    try{
         let data = req.body
         if(!emptyBody(data)) return res.status(400).send({status: false, message: "Please provide details in the body!"})
 
@@ -21,6 +32,8 @@ const createPost = async (req,res) =>{
 
         let uploadedFileURL = await upload.uploadFile(files[0])
         data.image = uploadedFileURL;
+        //if (!profileImageCheck(data.image)) return res.status(400).send({ status: false, message: "Please provide profileImage in correct format like jpeg, png, jpg, gif, bmp etc" })
+
 
         if(caption){
             if(!isValid(caption)) return res.status(400).send({status: false, message: "Invalid caption format!"})
@@ -48,12 +61,30 @@ const createPost = async (req,res) =>{
         await profileModel.findOneAndUpdate({_id: profileId}, {postData: postData, postCount: count})
 
         res.status(201).send({status: true, message: "Your post has been created!", data: obj})
-    }catch(error){ return res.status(500).send({status: false, message: error.message})}
+
+
+    }catch(error){
+        return res.status(500).send({status: false, message: error.message})
+    }
 }
 
-/**   --------------------------------------------getPost------------------------------------------------- */
-const getPost = async (req,res) =>{
-    try {
+
+
+
+
+
+
+
+
+
+
+
+
+
+//========================================  Get Post  ==========================================//
+
+const getPost = async function (req,res){
+    try{
         let profileId = req.params.profileId
         let postId = req.params.postId
 
@@ -69,24 +100,49 @@ const getPost = async (req,res) =>{
         let postProfile = await profileModel.findOne({_id: post.profileId, isDeleted: false})
 
         let block = postProfile.blockedAccs
-        for(let value of block.length){
-            if(value._id == profileId) return res.status(403).send({status: false, message: `You are not allowed to view ${postProfile.userName}'s posts!`})
+        for(let i=0; i<block.length; i++){
+            if(block[i]._id == profileId){
+               return res.status(403).send({status: false, message: `You are not allowed to view ${postProfile.userName}'s posts!`})
+            }
         }
 
         var obj = {}
-        if(post.location) obj.Location = post.location
-        obj.Image = post.image
-        if(post.caption) obj.Caption = post.caption
-        obj.Likes = post.likesCount
-        obj.Comments = post.commentsCount
+        if(post.location){
+            obj["Location"] = post["location"]
+        }
+       
+        obj["Image"] = post["image"]
+        
+        if(post.caption){
+            obj["Caption"] = post["caption"]
+        }
+        obj["Likes"] = post["likesCount"]
+        obj["Comments"] = post["commentsCount"]
 
        return res.status(200).send({status: true, data: obj})
-    }catch(error){ return res.status(500).send({status: false, message: error.message})}
+
+
+    }catch(error){
+       return res.status(500).send({status: false, message: error.message})
+    }
 }
 
-/**   --------------------------------------------getLikes------------------------------------------------- */
-const getLikes = async (req,res) =>{
-    try {
+
+
+
+
+
+
+
+
+
+
+
+
+//===================================  Fetching comments' list of a post  ====================================//
+
+const getCommentsList = async function (req,res){
+    try{
         let profileId = req.params.profileId
         let postId = req.params.postId
 
@@ -114,12 +170,31 @@ const getLikes = async (req,res) =>{
 
 
         return res.status(200).send({status: true, data: obj})
-    }catch(error){ return res.status(500).send({status: false, message: error.message})}
+
+
+    }catch(error){
+        res.status(500).send({status: false, message: error.message})
+    }
 }
 
-/**   --------------------------------------------getComments------------------------------------------------- */
-const getComments = async (req,res) =>{
-    try {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//=======================================  Fetching Like's list of a post   =========================================//
+
+const getLikesList = async function (req,res){
+    try{
         let profileId = req.params.profileId
         let postId = req.params.postId
 
@@ -135,8 +210,10 @@ const getComments = async (req,res) =>{
         let postProfile = await profileModel.findOne({_id: post.profileId, isDeleted: false})
 
         let block = postProfile.blockedAccs
-        for(let value of block.length){
-            if(value._id == profileId) return  res.status(403).send({status: false, message: `You are not allowed to view ${postProfile.userName}'s post's likes List!`})
+        for(let i=0; i<block.length; i++){
+            if(block[i]._id == profileId){
+              return  res.status(403).send({status: false, message: `You are not allowed to view ${postProfile.userName}'s post's likes List!`})
+            }
         }
 
       let obj = {}
@@ -146,11 +223,33 @@ const getComments = async (req,res) =>{
 
        return  res.status(200).send({status: true, data: obj})
 
-    }catch(error){ return res.status(500).send({status: false, message: error.message})}
+
+    }catch(error){
+        res.status(500).send({status: false, message: error.message})
+    }
 }
-/**   --------------------------------------------updatePost------------------------------------------------- */
-const updatePost = async (req,res) =>{
-    try {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//===================================  To update a post  ========================================//
+
+const updatePost = async function (req, res){
+    try{
+       
         let profileId = req.params.profileId
         let postId = req.params.postId
         let data = req.body
@@ -178,11 +277,31 @@ const updatePost = async (req,res) =>{
 
         let newData = await postModel.findOneAndUpdate({_id: postId}, data,{new:true})
         return res.status(200).send({status: true, message: "post updated successfully!", data: newData})
-    }catch(error){ return res.status(500).send({status: false, message: error.message})}
+
+
+    }catch(error){
+        return res.status(500).send({status: false, message: error.message})
+    }
 }
-/**   --------------------------------------------deletePost------------------------------------------------- */
-const deletePost = async (req,res) =>{
-    try {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//========================================  Deleting a post  =====================================//
+
+const deletePost = async function (req, res){
+    try{
         let profileId = req.params.profileId
         let postId = req.params.postId
 
@@ -200,8 +319,18 @@ const deletePost = async (req,res) =>{
 
 
         let newData = await postModel.findOneAndUpdate({_id: postId}, {isDeleted: true, deletedAt: Date.now()}, {new: true})
-        return res.status(200).send({status: true, message: "Post deleted successfully!", data: newData}) 
-    }catch(error){ return res.status(500).send({status: false, message: error.message})}
+        return res.status(200).send({status: true, message: "Post deleted successfully!", data: newData})
+
+    }catch(error){
+        return res.status(500).send({status: false, message: error.message})
+    }
 }
 
-module.exports = {createPost ,getPost ,getComments , getLikes , updatePost ,deletePost}
+
+
+
+
+
+
+
+module.exports = {createPost, getPost, getCommentsList, getLikesList, updatePost, deletePost}
