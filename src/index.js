@@ -7,6 +7,7 @@ const rout = require('./router/rout')
 
 dotenv.config();
 const app = express();
+console.log(app)
 
 app.use(multer().any());
 mongoose.connect(process.env.DB_URL).then( _ => console.log('DB connect')).catch((err) => console.log(err));
